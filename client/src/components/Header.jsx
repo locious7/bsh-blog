@@ -15,19 +15,19 @@ export default function Header() {
           Beestings and Honey Blog
         </span>
       </Link>
-      <form>
-        <TextInput
+      <form className="flex-grow hidden lg:flex lg:items-center lg:justify-center">
+        <TextInput 
           type="text"
           placeholder="Search"
           rightIcon={AiOutlineSearch}
-          className="hidden lg:inline"
+          className="hidden lg:inline lg:w-1/2"
         />
       </form>
       <Button className="w-12 h-10 lg:hidden" color="gray" pill>
         <AiOutlineSearch />
       </Button>
-      <div className="flex gap-3 md:order-2">
-        <Button className="w-12 h-10 hidden sm:inline" color="gray" pill>
+      <div className="flex gap-3 md:order-2 ml-5">
+        <Button className="w-12 h-10 sm:inline" color="gray" pill>
           <FaMoon />
         </Button>
         <Link to="/sign-in">
