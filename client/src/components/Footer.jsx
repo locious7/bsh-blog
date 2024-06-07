@@ -23,15 +23,11 @@ export default function FooterComp() {
                             <Footer.LinkGroup col>
                                 <Footer.Link
                                     href="/contact"
-                                    target="_blank"
-                                    rel="noopener noreferrrr"
                                 >
                                     Contact
                                 </Footer.Link>
                                 <Footer.Link
                                     href="/about"
-                                    target="_blank"
-                                    rel="noopener noreferrrr"
                                 >
                                     About BSH Blog
                                 </Footer.Link>

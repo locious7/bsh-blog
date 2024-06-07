@@ -4,17 +4,12 @@ import logo from '../assets/Beestingsandhoney.webp'; // update the path to your 
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice.js';
-import { useEffect } from 'react';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
   const { loading, error: errorMessage } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    console.log('error message', errorMessage);
-  })
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
