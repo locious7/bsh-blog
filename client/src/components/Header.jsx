@@ -16,7 +16,7 @@ export default function Header() {
         </span>
       </Link>
       <form className="flex-grow hidden lg:flex lg:items-center lg:justify-center">
-        <TextInput 
+        <TextInput
           type="text"
           placeholder="Search"
           rightIcon={AiOutlineSearch}

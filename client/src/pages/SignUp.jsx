@@ -2,6 +2,7 @@ import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/Beestingsandhoney.webp'; // update the path to your image file
 import { useState } from 'react';
+import OAuth from '../components/OAuth';
 
 
 export default function SignUp() {
@@ -108,6 +109,7 @@ export default function SignUp() {
                 )
               }
             </Button>
+            <OAuth />
           </form>
           <div className='flex gap-2 mt-2'>
             <span>Have an account?</span>

@@ -4,6 +4,7 @@ import logo from '../assets/Beestingsandhoney.webp'; // update the path to your 
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice.js';
+import OAuth from '../components/OAuth.jsx';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
@@ -95,6 +96,7 @@ export default function SignIn() {
                 )
               }
             </Button>
+            <OAuth />
           </form>
           <div className='flex gap-2 mt-2'>
             <span>Don&#39;t have an account?</span>

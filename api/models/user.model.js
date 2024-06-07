@@ -15,7 +15,12 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    }, { timestamps: true }
+    profilePicture: {
+        type: String,
+        default: "https://www.pngkey.com/png/detail/115-1150152_default-profile-picture-avatar-png-green.png",
+    }
+},
+    { timestamps: true }
 );
 
 const User = mongoose.model('User', userSchema);
