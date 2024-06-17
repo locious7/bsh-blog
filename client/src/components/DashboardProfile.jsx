@@ -1,22 +1,33 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Alert, Button, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import {
+  updateStart,
+  updateSuccess,
+  updateFailure,
+} from "../redux/user/userSlice";
+import { useDispatch } from "react-redux";
 
 export default function DashboardProfile() {
   const { currentUser } = useSelector((state) => state.user);
-  const [imageFile, setImageFile] = useState(null);
+  // const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const filePickerRef = useRef(null);
   const [imageFileUploadProgress, setImageFileUploadProgress] = useState(0);
   const [imageFileUploadError, setImageFileUploadError] = useState(null);
-  const [uploadUrl, setUploadUrl] = useState("");
+  // const [uploadUrl, setUploadUrl] = useState("");
+  const [formData, setFormData] = useState({});
+  const [imageFileUploading, setImageFileUploading] = useState(false);
+  const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
+  const [updateUserError, setUpdateUserError] = useState(null);
   const API_ENDPOINT = import.meta.env.VITE_PUBLIC_AWS_API_ENDPOINT;
+  const dispatch = useDispatch();
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     const maxSizeInMB = 2;
     const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
@@ -41,55 +52,42 @@ export default function DashboardProfile() {
     }
 
     if (file) {
-      setImageFile(file);
+      // setImageFile(file);
       setImageFileUrl(URL.createObjectURL(file));
-    }
-    // Track the initial load progress
-    const reader = new FileReader();
-    reader.onprogress = (data) => {
-      if (data.lengthComputable) {
-        const progress = Math.round((data.loaded / data.total) * 100);
-        setImageFileUploadProgress(progress);
+
+      // Track the initial load progress
+      const reader = new FileReader();
+      reader.onprogress = (data) => {
+        if (data.lengthComputable) {
+          const progress = Math.round((data.loaded / data.total) * 100);
+          setImageFileUploadProgress(progress);
+        }
+      };
+      reader.onloadend = () => {
+        setImageFileUploadProgress(100);
+      };
+      reader.readAsDataURL(file);
+
+      // Handle upload directly after file is selected
+      try {
+        const { presignedUrl, s3ObjectUrl } = await getPresignedUrl(file);
+        await uploadImage(presignedUrl, file);
+        // setUploadUrl(s3ObjectUrl);
+        setImageFileUrl(s3ObjectUrl);
+        setFormData({ ...formData, profilePicture: s3ObjectUrl });
+        setImageFileUploading(false);
+
+        // setTimeout(() => {
+        //   setImageFileUploadProgress(null);
+        // }, 5000);
+      } catch (error) {
+        setImageFileUploadError("Error during upload: " + error.message);
       }
-    };
-    reader.onloadend = () => {
-      setImageFileUploadProgress(100);
-    };
-    reader.readAsDataURL(file);
+    }
   };
 
-  const uploadImage = useCallback(
-    async (presignedUrl) => {
-      setImageFileUploadError(null);
-      try {
-        const uploadResponse = await axios.put(presignedUrl, imageFile, {
-          headers: {
-            "Content-Type": imageFile.type,
-          },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setImageFileUploadProgress(percentCompleted);
-          },
-        });
-      } catch (error) {
-        setImageFileUploadError(`Error uploading file: ${error.message}`);
-        setImageFile(null);
-        setImageFileUrl(null);
-        setImageFileUploadProgress(null);
-      }
-    },
-    [imageFile, setImageFileUploadProgress]
-  );
-
-  const getPresignedUrl = useCallback(async () => {
-    if (!imageFile) {
-      window.alert("No file selected. Please select a file.");
-      throw new Error("No file selected.");
-    }
-
-    const filename = new Date().getTime() + "_" + imageFile.name;
+  const getPresignedUrl = async (file) => {
+    const filename = new Date().getTime() + "_" + file.name;
     const maxSizeInMB = 2;
     const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
 
@@ -99,39 +97,91 @@ export default function DashboardProfile() {
         url: API_ENDPOINT,
         params: {
           filename: filename,
-          contentType: imageFile.type,
+          contentType: file.type,
           maxSize: maxSizeInBytes,
         },
       });
       const presignedUrl = response.data.presignedUrl;
       const s3ObjectUrl = response.data.s3ObjectUrl;
+      // setImageFileUrl(s3ObjectUrl);
+      // setFormData({ ...formData, profilePicture: s3ObjectUrl });
       return { presignedUrl, s3ObjectUrl };
       // return response.data.url;
     } catch (error) {
       setImageFileUploadError("Error getting presigned URL: " + error.message);
       throw error;
     }
-  }, [imageFile, API_ENDPOINT]);
+  };
 
-  useEffect(() => {
-    if (imageFile) {
-      const upload = async () => {
-        const { presignedUrl, s3ObjectUrl } = await getPresignedUrl();
-        await uploadImage(presignedUrl);
-        setUploadUrl(s3ObjectUrl);
-
-        setTimeout(() => {
-          setImageFileUploadProgress(null);
-        }, 5000);
-      };
-      upload();
+  const uploadImage = async (presignedUrl, file) => {
+    setImageFileUploadError(null);
+    try {
+      await axios.put(presignedUrl, file, {
+        headers: {
+          "Content-Type": file.type,
+        },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setImageFileUploadProgress(percentCompleted);
+        },
+      });
+    } catch (error) {
+      setImageFileUploadError(`Error uploading file: ${error.message}`);
+      // setImageFile(null);
+      setImageFileUrl(null);
+      setImageFileUploadProgress(null);
+      setImageFileUploading(false);
     }
-  }, [imageFile, getPresignedUrl, uploadImage]);
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setUpdateUserError(null);
+    setUpdateUserSuccess(null);
+    if (Object.keys(formData).length === 0) {
+      setUpdateUserError("No changes made");
+      return;
+    }
+    if (imageFileUploading) {
+      setUpdateUserError("Please wait for image to upload");
+      return;
+    }
+    try {
+      dispatch(updateStart());
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        dispatch(updateFailure(data.message));
+        setUpdateUserError(data.message);
+      } else {
+        dispatch(updateSuccess(data));
+        setUpdateUserSuccess("User's profile updated successfully");
+      }
+    } catch (error) {
+      dispatch(updateFailure(error.message));
+      setUpdateUserError(error.message);
+    }
+  };
 
   return (
-    <div className="max-w-lg mx-auto p-3 w-full">
-      <h1 className="my-7 text-center font-semibold text-3xl">Profile</h1>
-      <form className="flex flex-col gap-4">
+    <div className="max-w-sm mx-auto p-3 w-full">
+      <h1 className="my-20 mb-4 text-center font-semibold text-3xl">Profile</h1>
+      <aside className="mb-3 text-center mx-auto font-style: italic ">
+        Click on the profile image to add a new one!
+      </aside>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <input
           type="file"
           accept="image/*"
@@ -140,7 +190,7 @@ export default function DashboardProfile() {
           hidden
         />
         <div
-          className="relative w-32 h-32 self-center cursor-pointer shadow-md overflow-hidden rounded-full"
+          className="relative w-48 h-48 self-center cursor-pointer shadow-md overflow-hidden rounded-full mb-4"
           onClick={() => filePickerRef.current.click()}
         >
           <img
@@ -166,12 +216,14 @@ export default function DashboardProfile() {
                   left: 0,
                 },
                 path: {
-                  stroke: `rgba(84, 171, 65, ${imageFileUploadProgress / 100})`,
+                  stroke: `rgba(62, 152, 199, ${
+                    imageFileUploadProgress / 100
+                  })`,
                 },
                 text: {
-                  fill: "#54ab41",
-                  fontSize: "26px", // Change the font size if necessary
-                  fontWeight: "bold", // Change the font weight if necessary
+                  // fill: "#54ab41",
+                  fontSize: "26px",
+                  fontWeight: "bold",
                 },
               }}
             />
@@ -185,14 +237,21 @@ export default function DashboardProfile() {
           id="username"
           placeholder="Username"
           defaultValue={currentUser.username}
+          onChange={handleChange}
         />
         <TextInput
           type="email"
           id="email"
           placeholder="email"
           defaultValue={currentUser.email}
+          onChange={handleChange}
         />
-        <TextInput type="password" id="password" placeholder="password" />
+        <TextInput
+          type="password"
+          id="password"
+          placeholder="password"
+          onChange={handleChange}
+        />
         <Button type="submit" gradientDuoTone="purpleToBlue" outline>
           Update
         </Button>
@@ -201,6 +260,16 @@ export default function DashboardProfile() {
         <span className="cursor-pointer">Delete Account</span>
         <span className="cursor-pointer">Sign Out</span>
       </div>
+      {updateUserSuccess && (
+        <Alert color="success" className="mt-5">
+          {updateUserSuccess}
+        </Alert>
+      )}
+      {updateUserError && (
+        <Alert color="failure" className="mt-5">
+          {updateUserError}
+        </Alert>
+      )}
     </div>
   );
 }
