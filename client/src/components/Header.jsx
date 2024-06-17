@@ -25,7 +25,7 @@ export default function Header() {
           type="text"
           placeholder="Search"
           rightIcon={AiOutlineSearch}
-          className="hidden lg:inline lg:w-1/2"
+          className="hidden lg:inline lg:w-1/3"
         />
       </form>
       <div className="flex gap-3 md:order-2 ml-5">
