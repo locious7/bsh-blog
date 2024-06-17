@@ -17,6 +17,14 @@ export const signup = async (req, res, next) => {
         next(errorHandler(400, "All fields are required"));
     }
 
+    if (username.length < 7 || username.length > 20) {
+        return next(errorHandler(400, "Username must be between 7 and 20 characters"));
+    }
+
+    if (password.length < 10) {
+        return next(errorHandler(400, "Password must be at least 10 characters"));
+    }
+
     const hashedPassword = bcryptjs.hashSync(password, 10);
 
     const newUser = new User({
