@@ -12,6 +12,7 @@ import {
   deleteUserStart,
   deleteUserSuccess,
   deleteUserFailure,
+  signoutSuccess,
 } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
@@ -64,7 +65,9 @@ export default function DashboardProfile() {
       const reader = new FileReader();
       reader.onprogress = (data) => {
         if (data.lengthComputable) {
-          const progress = Math.round((data.loaded / data.total) * 100);
+          const progress = Math.round(
+            (data.loaded / data.total) * 100
+          );
           setImageFileUploadProgress(progress);
         }
       };
@@ -75,7 +78,9 @@ export default function DashboardProfile() {
 
       // Handle upload directly after file is selected
       try {
-        const { presignedUrl, s3ObjectUrl } = await getPresignedUrl(file);
+        const { presignedUrl, s3ObjectUrl } = await getPresignedUrl(
+          file
+        );
         await uploadImage(presignedUrl, file);
         // setUploadUrl(s3ObjectUrl);
         setImageFileUrl(s3ObjectUrl);
@@ -86,7 +91,9 @@ export default function DashboardProfile() {
         //   setImageFileUploadProgress(null);
         // }, 5000);
       } catch (error) {
-        setImageFileUploadError("Error during upload: " + error.message);
+        setImageFileUploadError(
+          "Error during upload: " + error.message
+        );
       }
     }
   };
@@ -113,7 +120,9 @@ export default function DashboardProfile() {
       return { presignedUrl, s3ObjectUrl };
       // return response.data.url;
     } catch (error) {
-      setImageFileUploadError("Error getting presigned URL: " + error.message);
+      setImageFileUploadError(
+        "Error getting presigned URL: " + error.message
+      );
       throw error;
     }
   };
@@ -183,24 +192,42 @@ export default function DashboardProfile() {
   const handleDeleteUser = async () => {
     setShowModal(false);
     try {
-       dispatch(deleteUserStart());
-       const res = await fetch(`/api/user/delete/${currentUser._id}`, {
-        method: 'DELETE',
-       });
-       const data = await res.json();
-       if (!res.ok) {
+      dispatch(deleteUserStart());
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
         dispatch(deleteUserFailure(data.message));
-       } else {
+      } else {
         dispatch(deleteUserSuccess(data));
-       }
+      }
     } catch (error) {
       dispatch(deleteUserFailure(error.message));
     }
-  }
+  };
+
+  const handleSignout = async () => {
+    try {
+      const res = await fetch("/api/user/signout", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        dispatch(signoutSuccess());
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   return (
     <div className="max-w-sm mx-auto p-3 w-full">
-      <h1 className="my-20 mb-4 text-center font-semibold text-3xl">Profile</h1>
+      <h1 className="my-20 mb-4 text-center font-semibold text-3xl">
+        Profile
+      </h1>
       <aside className="mb-3 text-center mx-auto font-style: italic ">
         Click on the profile image to add a new one!
       </aside>
@@ -219,11 +246,10 @@ export default function DashboardProfile() {
           <img
             src={imageFileUrl || currentUser.profilePicture}
             alt="user"
-            className={`rounded-full w-full h-full object-cover border-8 border-[lightgray] ${
-              imageFileUploadProgress &&
+            className={`rounded-full w-full h-full object-cover border-8 border-[lightgray] ${imageFileUploadProgress &&
               imageFileUploadProgress < 100 &&
               "opacity-50"
-            }`}
+              }`}
           />
           {imageFileUploadProgress && (
             <CircularProgressbar
@@ -239,9 +265,8 @@ export default function DashboardProfile() {
                   left: 0,
                 },
                 path: {
-                  stroke: `rgba(62, 152, 199, ${
-                    imageFileUploadProgress / 100
-                  })`,
+                  stroke: `rgba(62, 152, 199, ${imageFileUploadProgress / 100
+                    })`,
                 },
                 text: {
                   // fill: "#54ab41",
@@ -280,10 +305,15 @@ export default function DashboardProfile() {
         </Button>
       </form>
       <div className="text-red-500 flex justify-between mt-5">
-        <span onClick={() => setShowModal(true)} className="cursor-pointer">
+        <span
+          onClick={() => setShowModal(true)}
+          className="cursor-pointer"
+        >
           Delete Account
         </span>
-        <span className="cursor-pointer">Sign Out</span>
+        <span onClick={handleSignout} className="cursor-pointer">
+          Sign Out
+        </span>
       </div>
       {updateUserSuccess && (
         <Alert color="success" className="mt-5">
@@ -311,13 +341,17 @@ export default function DashboardProfile() {
           <div className="text-center">
             <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
             <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">
-              Are you sure you want to delete your account? This cannot be undone!
+              Are you sure you want to delete your account? This
+              cannot be undone!
             </h3>
             <div className="flex justify-center gap-8">
-              <Button color='failure' onClick={handleDeleteUser}>
+              <Button color="failure" onClick={handleDeleteUser}>
                 Yes, I&apos;m sure
               </Button>
-              <Button color='gray' onClick={() => setShowModal(false)}>
+              <Button
+                color="gray"
+                onClick={() => setShowModal(false)}
+              >
                 No, Cancel
               </Button>
             </div>

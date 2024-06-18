@@ -4,17 +4,35 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { FaMoon, FaSun } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleTheme } from "../redux/theme/themeSlice";
+import { signoutSuccess } from "../redux/user/userSlice";
 
 export default function Header() {
   const path = useLocation().pathname;
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.theme);
+
+  const handleSignout = async () => {
+		try {
+			const res = await fetch("/api/user/signout", {
+				method: "POST",
+			});
+			const data = await res.json();
+			if (!res.ok) {
+				console.log(data.message);
+			} else {
+				dispatch(signoutSuccess());
+			}
+		} catch (error) {
+			console.log(error.message);
+		}
+	};
+
   return (
     <Navbar className="border-b-2" fluid={true}>
       <Link
         to="/"
-        className="self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white"
+        className="self-center flex whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white"
       >
         <span className="px-2 py-1 bg-gradient-to-r from-green-500 to-yellow-400 rounded-lg text-white">
           Beestings and Honey Blog
@@ -28,7 +46,7 @@ export default function Header() {
           className="hidden lg:inline lg:w-1/2"
         />
       </form>
-      <div className="flex gap-3 md:order-2 ml-5 mt-4">
+      <div className="flex gap-3 md:order-2 ml-5 mt-2 mb-2">
         <Button className="w-12 h-10 lg:hidden" color="gray" pill>
           <AiOutlineSearch size={20} />
         </Button>
@@ -58,7 +76,7 @@ export default function Header() {
               <Dropdown.Item>Profile</Dropdown.Item>
             </Link>
             <Dropdown.Divider />
-            <Dropdown.Item>Sign Out</Dropdown.Item>
+            <Dropdown.Item onClick={handleSignout}>Sign Out</Dropdown.Item>
           </Dropdown>
         ) : (
           <Link to="/sign-in">

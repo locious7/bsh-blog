@@ -45,7 +45,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="min-h-screen mt-20 sm:mx-auto md:mx-auto">
+    <div className="min-h-screen mt-10 sm:mx-auto md:mx-auto">
       <div className="flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-8">
         {/* {left} */}
         <div className="flex-1 mx-auto">
@@ -54,20 +54,20 @@ export default function SignUp() {
               <img
                 src={logo}
                 alt="logo"
-                className="w-64 sm:w-64 md:w-64 lg:w-96 xl:w-128"
+                className="w-64 sm:w-64 md:w-72 lg:w-72 xl:w-128"
               />
             </Link>
             <Link
               to="/"
               className="whitespace-nowrap font-bold dark:text-white text-4xl"
             >
-              <span className="px-2 py-1 bg-gradient-to-r from-green-500 to-yellow-400 rounded-lg text-white text-base sm:text-base md:text-lg lg:text-2xl xl:text-2xl">
+              <span className="px-3 py-2 bg-gradient-to-r from-green-500 to-yellow-400 rounded-lg text-white text-base sm:text-base md:text-lg lg:text-2xl xl:text-2xl">
                 Beestings and Honey Blog
               </span>
             </Link>
           </div>
-          <p className="text-md mt-5 mb-5">
-            Sign up with your email or with google to get started!
+          <p className="text-md mt-4">
+            Sign up with your email or google to get started!
           </p>
         </div>
         {/* {right} */}
