@@ -25,10 +25,10 @@ export default function Header() {
           type="text"
           placeholder="Search"
           rightIcon={AiOutlineSearch}
-          className="hidden lg:inline lg:w-1/3"
+          className="hidden lg:inline lg:w-1/2"
         />
       </form>
-      <div className="flex gap-3 md:order-2 ml-5">
+      <div className="flex gap-3 md:order-2 ml-5 mt-4">
         <Button className="w-12 h-10 lg:hidden" color="gray" pill>
           <AiOutlineSearch size={20} />
         </Button>

@@ -1,9 +1,8 @@
-import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react'
-import { Link, useNavigate } from 'react-router-dom'
-import logo from '../assets/Beestingsandhoney.webp'; // update the path to your image file
-import { useState } from 'react';
-import OAuth from '../components/OAuth';
-
+import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
+import { Link, useNavigate } from "react-router-dom";
+import logo from "../assets/Beestingsandhoney.webp"; // update the path to your image file
+import { useState } from "react";
+import OAuth from "../components/OAuth";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
@@ -18,15 +17,15 @@ export default function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.username || !formData.email || !formData.password) {
-      return setErrorMessage('Please fill in all fields');
+      return setErrorMessage("Please fill in all fields");
     }
     try {
       setLoading(true);
       setErrorMessage(null);
-      const res = await fetch('api/auth/signup', {
-        method: 'POST',
+      const res = await fetch("api/auth/signup", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
@@ -37,7 +36,7 @@ export default function SignUp() {
         return;
       }
       if (res.ok) {
-        navigate('/sign-in')
+        navigate("/sign-in");
       }
     } catch (error) {
       setErrorMessage(error.message);
@@ -46,13 +45,17 @@ export default function SignUp() {
   };
 
   return (
-    <div className='min-h-screen mt-20 sm:mx-auto md:mx-auto'>
-      <div className='flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-8'>
+    <div className="min-h-screen mt-20 sm:mx-auto md:mx-auto">
+      <div className="flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-8">
         {/* {left} */}
-        <div className='flex-1'>
-          <div className='flex flex-col items-center gap-4'>
-            <Link to='/'>
-              <img src={logo} alt='logo' className='w-64 sm:w-64 md:w-64 lg:w-96 xl:w-128' />
+        <div className="flex-1 mx-auto">
+          <div className="flex flex-col items-center gap-4">
+            <Link to="/">
+              <img
+                src={logo}
+                alt="logo"
+                className="w-64 sm:w-64 md:w-64 lg:w-96 xl:w-128"
+              />
             </Link>
             <Link
               to="/"
@@ -63,67 +66,72 @@ export default function SignUp() {
               </span>
             </Link>
           </div>
-          <p className='text-md mt-5 mb-5'>
-            Sign up with your email addess and password or with google to get started!
+          <p className="text-md mt-5 mb-5">
+            Sign up with your email or with google to get started!
           </p>
         </div>
         {/* {right} */}
-        <div className='flex-1'>
-          <form className='flex flex-col gap-4 w-full md:w-full xl:w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg' onSubmit={handleSubmit}>
-            <div className=''>
-              <Label value='Your Username' />
+        <div className="flex-1 mx-auto">
+          <form
+            className="flex flex-col gap-4 w-full md:w-full xl:w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"
+            onSubmit={handleSubmit}
+          >
+            <div className="">
+              <Label value="Your Username" />
               <TextInput
-                type='text'
-                placeholder='Username'
-                id='username'
+                type="text"
+                placeholder="Username"
+                id="username"
                 onChange={handleChange}
               />
             </div>
-            <div className=''>
-              <Label value='Your email' />
+            <div className="">
+              <Label value="Your Email" />
               <TextInput
-                type='email'
-                placeholder='name@company.com'
-                id='email'
+                type="email"
+                placeholder="name@company.com"
+                id="email"
                 onChange={handleChange}
               />
             </div>
-            <div className=''>
-              <Label value='Your Password' />
+            <div className="">
+              <Label value="Your Password" />
               <TextInput
-                type='password'
-                placeholder='Password'
-                id='password'
+                type="password"
+                placeholder="**********"
+                id="password"
                 onChange={handleChange}
               />
             </div>
-            <Button className='bg-gradient-to-r from-green-500 to-yellow-400' type='submit' disabled={loading}>
-              {
-                loading ? (
-                  <>
-                    <Spinner size='sm' />
-                    <span className='pl-3'>Loading...</span>
-                  </>
-                ) : (
-                  'Sign Up'
-                )
-              }
+            <Button
+              className="bg-gradient-to-r from-green-500 to-yellow-400"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Spinner size="sm" />
+                  <span className="pl-3">Loading...</span>
+                </>
+              ) : (
+                "Sign Up"
+              )}
             </Button>
             <OAuth />
           </form>
-          <div className='flex gap-2 mt-2'>
+          <div className="flex gap-2 mt-2">
             <span>Have an account?</span>
-            <Link to='/sign-in' className='text-blue-500'>Sign In</Link>
+            <Link to="/sign-in" className="text-blue-500">
+              Sign In
+            </Link>
           </div>
-          {
-            errorMessage && (
-              <Alert className='mt-5' color={'failure'}>
-                {errorMessage}
-              </Alert>
-            )
-          }
+          {errorMessage && (
+            <Alert className="mt-5" color="failure">
+              {errorMessage}
+            </Alert>
+          )}
         </div>
       </div>
     </div>
-  )
+  );
 }
