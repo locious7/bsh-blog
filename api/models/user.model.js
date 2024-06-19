@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema({
     profilePicture: {
         type: String,
         default: "https://www.pngkey.com/png/detail/115-1150152_default-profile-picture-avatar-png-green.png",
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false
     }
 },
     { timestamps: true }

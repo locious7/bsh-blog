@@ -99,7 +99,7 @@ export default function DashboardProfile() {
   };
 
   const getPresignedUrl = async (file) => {
-    const filename = new Date().getTime() + "_" + file.name;
+    const filename = new Date().getTime() + "_" + file.name + "_" + `${currentUser._id}`;
     const maxSizeInMB = 2;
     const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
 
