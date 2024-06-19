@@ -182,6 +182,7 @@ export default function DashboardProfile() {
       } else {
         dispatch(updateSuccess(data));
         setUpdateUserSuccess("User's profile updated successfully");
+        setImageFileUploadProgress(null);
       }
     } catch (error) {
       dispatch(updateFailure(error.message));
