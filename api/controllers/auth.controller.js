@@ -79,7 +79,6 @@ export const signin = async (req, res, next) => {
             createdAt: created,
             updatedAt: updated,
             __v: v,
-            isAdmin: admin,
             ...rest
         } = validUser._doc;
 
@@ -111,7 +110,6 @@ export const google = async (req, res, next) => {
                 createdAt: created,
                 updatedAt: updated,
                 __v: v,
-                isAdmin: admin,
                 ...rest
             } = user._doc;
             res.status(200)
@@ -142,7 +140,6 @@ export const google = async (req, res, next) => {
                 createdAt,
                 updatedAt,
                 __v,
-                isAdmin,
                 ...rest
             } = newUser._doc;
             res.status(200)
