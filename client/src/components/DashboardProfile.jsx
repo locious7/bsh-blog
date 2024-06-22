@@ -16,7 +16,7 @@ import {
 } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 export default function DashboardProfile() {
   const { currentUser, error, loading } = useSelector((state) => state.user);
@@ -31,7 +31,7 @@ export default function DashboardProfile() {
   const [imageFileUploading, setImageFileUploading] = useState(false);
   const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
   const [updateUserError, setUpdateUserError] = useState(null);
-  const API_ENDPOINT = import.meta.env.VITE_PUBLIC_AWS_API_ENDPOINT;
+  const API_ENDPOINT = import.meta.env.VITE_PUBLIC_PROFILE_IMAGES_AWS_API_ENDPOINT;
   const dispatch = useDispatch();
 
   const handleImageChange = async (e) => {
@@ -60,7 +60,7 @@ export default function DashboardProfile() {
 
     if (file) {
       // setImageFile(file);
-      setImageFileUrl(URL.createObjectURL(file));
+      // setImageFileUrl(URL.createObjectURL(file));
 
       // Track the initial load progress
       const reader = new FileReader();
@@ -79,13 +79,12 @@ export default function DashboardProfile() {
 
       // Handle upload directly after file is selected
       try {
-        const { presignedUrl, s3ObjectUrl } = await getPresignedUrl(
-          file
-        );
-        await uploadImage(presignedUrl, file);
+        const { presignedPutUrl, presignedGetUrl } = await getPresignedUrls(file);
+
+        await uploadImage(presignedPutUrl, file);
         // setUploadUrl(s3ObjectUrl);
-        setImageFileUrl(s3ObjectUrl);
-        setFormData({ ...formData, profilePicture: s3ObjectUrl });
+        setImageFileUrl(presignedGetUrl);
+        setFormData({ ...formData, profilePicture: presignedGetUrl });
         setImageFileUploading(false);
 
         // setTimeout(() => {
@@ -99,7 +98,7 @@ export default function DashboardProfile() {
     }
   };
 
-  const getPresignedUrl = async (file) => {
+  const getPresignedUrls = async (file) => {
     const filename = new Date().getTime() + "_" + file.name + "_" + `${currentUser._id}`;
     const maxSizeInMB = 2;
     const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
@@ -114,11 +113,14 @@ export default function DashboardProfile() {
           maxSize: maxSizeInBytes,
         },
       });
-      const presignedUrl = response.data.presignedUrl;
-      const s3ObjectUrl = response.data.s3ObjectUrl;
+      const presignedPutUrl = response.data.presignedPutUrl;
+      const presignedGetUrl = response.data.presignedGetUrl;
+      // const presignedUrl = response.data.presignedUrl;
+      // const s3ObjectUrl = response.data.s3ObjectUrl;
       // setImageFileUrl(s3ObjectUrl);
       // setFormData({ ...formData, profilePicture: s3ObjectUrl });
-      return { presignedUrl, s3ObjectUrl };
+      // return { presignedUrl, s3ObjectUrl };
+      return { presignedPutUrl, presignedGetUrl };
       // return response.data.url;
     } catch (error) {
       setImageFileUploadError(
@@ -128,10 +130,10 @@ export default function DashboardProfile() {
     }
   };
 
-  const uploadImage = async (presignedUrl, file) => {
+  const uploadImage = async (presignedPutUrl, file) => {
     setImageFileUploadError(null);
     try {
-      await axios.put(presignedUrl, file, {
+      await axios.put(presignedPutUrl, file, {
         headers: {
           "Content-Type": file.type,
         },
@@ -145,9 +147,9 @@ export default function DashboardProfile() {
     } catch (error) {
       setImageFileUploadError(`Error uploading file: ${error.message}`);
       // setImageFile(null);
-      setImageFileUrl(null);
-      setImageFileUploadProgress(null);
-      setImageFileUploading(false);
+      // setImageFileUrl(null);
+      // setImageFileUploadProgress(null);
+      // setImageFileUploading(false);
     }
   };
 
@@ -303,19 +305,19 @@ export default function DashboardProfile() {
           onChange={handleChange}
         />
         <Button
-          type='submit'
-          gradientDuoTone='purpleToBlue'
+          type="submit"
+          gradientDuoTone="purpleToBlue"
           outline
           disabled={loading || imageFileUploading}
         >
-          {loading ? 'Loading...' : 'Update'}
+          {loading ? "Loading..." : "Update"}
         </Button>
         {currentUser.isAdmin && (
-          <Link to={'/create-post'}>
+          <Link to={"/create-post"}>
             <Button
-              type='button'
-              gradientDuoTone='purpleToPink'
-              className='w-full'
+              type="button"
+              gradientDuoTone="purpleToPink"
+              className="w-full"
             >
               Create a post
             </Button>
