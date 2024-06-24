@@ -4,6 +4,7 @@ const initialState = {
     currentUser: null,
     error: null,
     loading: false,
+    profileImageUrl: "",
 };
 
 const userSlice = createSlice({
@@ -16,6 +17,7 @@ const userSlice = createSlice({
         },
         signInSuccess: (state, action) => {
             state.currentUser = action.payload;
+            state.profileImageUrl = action.payload.profilePicture || '';
             state.loading = false;
             state.error = null;
         },
@@ -29,6 +31,7 @@ const userSlice = createSlice({
         },
         updateSuccess: (state, action) => {
             state.currentUser = action.payload;
+            state.profileImageUrl = action.payload.profilePicture || '';
             state.loading = false;
             state.error = null;
         },
@@ -51,9 +54,13 @@ const userSlice = createSlice({
         },
         signoutSuccess: (state) => {
             state.currentUser = null;
+            state.profileImageUrl = '';
             state.error = null;
             state.loading = false;
         },
+        setProfileImageUrl: (state, action) => {
+            state.profileImageUrl = action.payload;
+        }
     },
 });
 
@@ -68,6 +75,7 @@ export const {
     deleteUserSuccess,
     deleteUserFailure,
     signoutSuccess,
+    setProfileImageUrl,
 } = userSlice.actions;
 
 export default userSlice.reducer;

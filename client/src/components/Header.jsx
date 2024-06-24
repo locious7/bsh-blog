@@ -11,6 +11,7 @@ export default function Header() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.theme);
+  const profileImageUrl = useSelector((state) => state.user.profileImageUrl);
 
   const handleSignout = async () => {
 		try {
@@ -63,7 +64,7 @@ export default function Header() {
             arrowIcon={false}
             inline
             label={
-              <Avatar alt="user" img={currentUser.profilePicture} rounded />
+              <Avatar alt="user" img={profileImageUrl} rounded />
             }
           >
             <Dropdown.Header>

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useCallback } from "react";
 import { Alert, Button, Modal, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
@@ -13,6 +13,7 @@ import {
   deleteUserSuccess,
   deleteUserFailure,
   signoutSuccess,
+  setProfileImageUrl,
 } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
@@ -33,6 +34,29 @@ export default function DashboardProfile() {
   const [updateUserError, setUpdateUserError] = useState(null);
   const API_ENDPOINT = import.meta.env.VITE_PUBLIC_PROFILE_IMAGES_AWS_API_ENDPOINT;
   const dispatch = useDispatch();
+
+  const getPresignedUrl = useCallback(async (key, file = null, isUpload = false) => {
+    try {
+      const params = {
+        filename: key,
+      };
+      if (isUpload && file) {
+        params.contentType = file.type;
+      }
+
+      const response = await axios.get(API_ENDPOINT, { params });
+
+      if (!isUpload) {
+        setImageFileUrl(response.data.presignedGetUrl);
+        dispatch(setProfileImageUrl(response.data.presignedGetUrl));
+
+      }
+      return response.data;
+    } catch (error) {
+      console.error(`Error getting presigned URL:`, error);
+      throw error;
+    }
+  }, [API_ENDPOINT, dispatch]);
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
@@ -77,58 +101,24 @@ export default function DashboardProfile() {
       };
       reader.readAsDataURL(file);
 
-      // Handle upload directly after file is selected
       try {
-        const { presignedPutUrl, presignedGetUrl } = await getPresignedUrls(file);
+        setImageFileUploading(true);
+        const filename = new Date().getTime() + "_" + file.name + "_" + `${currentUser._id}`;
+        const { presignedPutUrl, presignedGetUrl } = await getPresignedUrl(filename, file, true);
 
         await uploadImage(presignedPutUrl, file);
-        // setUploadUrl(s3ObjectUrl);
         setImageFileUrl(presignedGetUrl);
-        setFormData({ ...formData, profilePicture: presignedGetUrl });
+        setFormData(prevData => ({
+          ...prevData,
+          profilePicture: filename
+        }));
         setImageFileUploading(false);
-
-        // setTimeout(() => {
-        //   setImageFileUploadProgress(null);
-        // }, 5000);
       } catch (error) {
-        setImageFileUploadError(
-          "Error during upload: " + error.message
-        );
+        setImageFileUploadError("Error during upload: " + error.message);
+        setImageFileUploading(false);
       }
     }
-  };
-
-  const getPresignedUrls = async (file) => {
-    const filename = new Date().getTime() + "_" + file.name + "_" + `${currentUser._id}`;
-    const maxSizeInMB = 2;
-    const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
-
-    try {
-      const response = await axios({
-        method: "GET",
-        url: API_ENDPOINT,
-        params: {
-          filename: filename,
-          contentType: file.type,
-          maxSize: maxSizeInBytes,
-        },
-      });
-      const presignedPutUrl = response.data.presignedPutUrl;
-      const presignedGetUrl = response.data.presignedGetUrl;
-      // const presignedUrl = response.data.presignedUrl;
-      // const s3ObjectUrl = response.data.s3ObjectUrl;
-      // setImageFileUrl(s3ObjectUrl);
-      // setFormData({ ...formData, profilePicture: s3ObjectUrl });
-      // return { presignedUrl, s3ObjectUrl };
-      return { presignedPutUrl, presignedGetUrl };
-      // return response.data.url;
-    } catch (error) {
-      setImageFileUploadError(
-        "Error getting presigned URL: " + error.message
-      );
-      throw error;
-    }
-  };
+  }
 
   const uploadImage = async (presignedPutUrl, file) => {
     setImageFileUploadError(null);
@@ -146,12 +136,18 @@ export default function DashboardProfile() {
       });
     } catch (error) {
       setImageFileUploadError(`Error uploading file: ${error.message}`);
-      // setImageFile(null);
-      // setImageFileUrl(null);
-      // setImageFileUploadProgress(null);
-      // setImageFileUploading(false);
+      setImageFileUploadProgress(null);
+      setImageFileUploading(false);
+      throw error;
     }
   };
+
+  const handleImageError = useCallback(() => {
+    // If the image fails to load, it might be due to an expired URL
+    if (currentUser.profilePicture) {
+      getPresignedUrl(currentUser.profilePicture);
+    }
+  }, [currentUser.profilePicture, getPresignedUrl]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -250,6 +246,7 @@ export default function DashboardProfile() {
           <img
             src={imageFileUrl || currentUser.profilePicture}
             alt="user"
+            onError={handleImageError}
             className={`rounded-full w-full h-full object-cover border-8 border-[lightgray] ${imageFileUploadProgress &&
               imageFileUploadProgress < 100 &&
               "opacity-50"
