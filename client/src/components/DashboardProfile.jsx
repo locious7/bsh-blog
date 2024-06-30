@@ -108,10 +108,7 @@ export default function DashboardProfile() {
 
         await uploadImage(presignedPutUrl, file);
         setImageFileUrl(presignedGetUrl);
-        setFormData(prevData => ({
-          ...prevData,
-          profilePicture: filename
-        }));
+        setFormData(prevData => ({...prevData, profilePicture: filename}));
         setImageFileUploading(false);
       } catch (error) {
         setImageFileUploadError("Error during upload: " + error.message);
@@ -247,7 +244,7 @@ export default function DashboardProfile() {
             src={imageFileUrl || currentUser.profilePicture}
             alt="user"
             onError={handleImageError}
-            className={`rounded-full w-full h-full object-cover border-8 border-[lightgray] ${imageFileUploadProgress &&
+            className={`rounded-full w-full h-full object-cover border-4 border-[lightgray] ${imageFileUploadProgress &&
               imageFileUploadProgress < 100 &&
               "opacity-50"
               }`}
@@ -256,7 +253,7 @@ export default function DashboardProfile() {
             <CircularProgressbar
               value={imageFileUploadProgress || 0}
               text={`${imageFileUploadProgress}%`}
-              strokeWidth={5}
+              strokeWidth={4}
               styles={{
                 root: {
                   width: "100%",

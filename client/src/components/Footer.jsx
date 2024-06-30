@@ -1,5 +1,6 @@
 import { Footer } from "flowbite-react"
 import { Link } from "react-router-dom"
+import logo from "../assets/Beestingsandhoney.webp"
 import { BsInstagram, BsYoutube, BsFacebook, BsTwitter } from "react-icons/bs"
 
 export default function FooterComp() {
@@ -12,9 +13,14 @@ export default function FooterComp() {
                             to="/"
                             className="self-center whitespace-nowrap text-2xl sm:text-xl font-semibold dark:text-white"
                         >
-                            <span className="px-2 py-1 bg-gradient-to-r from-green-500 to-yellow-400 rounded-lg text-white">
+                            <span className="px-2 py-1 bg-gradient-to-r from-orange-400 to-yellow-300 rounded-lg text-white">
                                 Beestings and Honey Blog
                             </span>
+                            <img
+                                src={logo}
+                                alt="logo"
+                                className="w-20 sm:w-20 md:w-32 lg:w-20 xl:w-128 mt-5"
+                            />
                         </Link>
                     </div>
                     <div className="grid grid-cols-2 gap-8 mt-4 sm:grid-cols-3 sm:gap-6">
@@ -73,9 +79,9 @@ export default function FooterComp() {
                 <div className="w-full sm:flex sm:items-center sm:justify-between">
                     <Footer.Copyright href='#' by="Beestings and Honey Blog" year={new Date().getFullYear()} />
                     <div className="flex gap-6 sm:mt-0 mt-4 sm:justify-center">
-                        <Footer.Icon href="#" target="_blank" rel="noopener noreferrrr" icon={BsFacebook}  />
-                        <Footer.Icon href="#" target="_blank" rel="noopener noreferrrr" icon={BsInstagram}  />
-                        <Footer.Icon href="https://www.youtube.com/@beestingsandhoney1" target="_blank" rel="noopener noreferrrr" icon={BsYoutube}  />
+                        <Footer.Icon href="#" target="_blank" rel="noopener noreferrrr" icon={BsFacebook} />
+                        <Footer.Icon href="#" target="_blank" rel="noopener noreferrrr" icon={BsInstagram} />
+                        <Footer.Icon href="https://www.youtube.com/@beestingsandhoney1" target="_blank" rel="noopener noreferrrr" icon={BsYoutube} />
                     </div>
                 </div>
             </div>

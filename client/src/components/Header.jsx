@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from "react";
 import { Avatar, Button, Dropdown, Navbar, TextInput } from "flowbite-react";
 import { Link, useLocation } from "react-router-dom";
 import { AiOutlineSearch } from "react-icons/ai";
@@ -5,37 +6,74 @@ import { FaMoon, FaSun } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleTheme } from "../redux/theme/themeSlice";
 import { signoutSuccess } from "../redux/user/userSlice";
+import logo from "../assets/Beestingsandhoney.webp";
+import axios from "axios";
 
 export default function Header() {
   const path = useLocation().pathname;
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.theme);
-  const profileImageUrl = useSelector((state) => state.user.profileImageUrl);
+  // const profileImageUrl = useSelector((state) => state.user.profileImageUrl);
+  const [imageFileUrl, setImageFileUrl] = useState(null);
+  const API_ENDPOINT = import.meta.env.VITE_PUBLIC_PROFILE_IMAGES_AWS_API_ENDPOINT;
+
+  // Assuming API_ENDPOINT and setImageFileUrl are defined elsewhere in your component
+  const getPresignedUrl = useCallback(async (profileImageUrl) => {
+    try {
+      const params = { filename: profileImageUrl };
+      const response = await axios.get(API_ENDPOINT, { params });
+      setImageFileUrl(response.data.presignedGetUrl); // Update state with the fetched URL
+      return response.data;
+    } catch (error) {
+      console.error(`Error getting presigned URL:`, error);
+      throw error;
+    }
+  }, [API_ENDPOINT, setImageFileUrl]); // Add setImageFileUrl as a dependency
+
+  // Adjusted useEffect hook
+  useEffect(() => {
+    if (currentUser && currentUser.profilePicture) {
+      const fetchImage = async () => {
+        try {
+          await getPresignedUrl(currentUser.profilePicture);
+        } catch (error) {
+          console.error("Failed to fetch image:", error);
+        }
+      };
+
+      fetchImage();
+    }
+  }, [currentUser, getPresignedUrl]); // Depend on currentUser and getPresignedUrl
 
   const handleSignout = async () => {
-		try {
-			const res = await fetch("/api/user/signout", {
-				method: "POST",
-			});
-			const data = await res.json();
-			if (!res.ok) {
-				console.log(data.message);
-			} else {
-				dispatch(signoutSuccess());
-			}
-		} catch (error) {
-			console.log(error.message);
-		}
-	};
+    try {
+      const res = await fetch("/api/user/signout", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        dispatch(signoutSuccess());
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   return (
     <Navbar className="border-b-2" fluid={true}>
       <Link
         to="/"
-        className="self-center flex whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white"
+        className="self-center flex whitespace-nowrap text-sm sm:text-xl gap-2 font-semibold dark:text-white"
       >
-        <span className="px-2 py-1 bg-gradient-to-r from-green-500 to-yellow-400 rounded-lg text-white">
+        <img
+          src={logo}
+          alt="logo"
+          className="w-8 sm:w-8 md:w-8 lg:w-8 xl:w-128"
+        />
+        <span className="px-2 py-1 bg-gradient-to-r from-orange-400 to-yellow-300 rounded-lg text-white">
           Beestings and Honey Blog
         </span>
       </Link>
@@ -64,7 +102,7 @@ export default function Header() {
             arrowIcon={false}
             inline
             label={
-              <Avatar alt="user" img={profileImageUrl} rounded />
+              <Avatar alt="u" img={imageFileUrl || currentUser.profilePicture} rounded />
             }
           >
             <Dropdown.Header>

@@ -1,6 +1,6 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../assets/Beestingsandhoney.webp"; // update the path to your image file
+import logo from "../assets/Beestingsandhoney.webp";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
