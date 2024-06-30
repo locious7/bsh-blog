@@ -1,10 +1,9 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Alert, Button, FileInput, Select, Spinner, TextInput } from "flowbite-react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { PlusCircle, Type, Image as ImageIcon, Film, Link, X, Plus } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
@@ -52,7 +51,6 @@ export default function CreatePost() {
 		const { name, value } = e.target;
 		setFormData(prevData => {
 			const updatedData = { ...prevData, [name]: value }
-			console.log("FormData Updated:", updatedData); // Log form data
 			return updatedData;
 		});
 	};
@@ -136,8 +134,6 @@ export default function CreatePost() {
 		setIsSubmitting(true);
 		setSubmitProgress(0);
 
-		console.log("Submitting FormData:", formData); // Log form data before submission
-
 		try {
 			// Process sections
 			const processedSections = await Promise.all(formData.sections.map(async (section, index) => {
@@ -148,20 +144,12 @@ export default function CreatePost() {
 				return { ...section, order: index };
 			}));
 
-			// // Generate a slug from the title
-			// const slug = formData.title
-			// 	.toLowerCase()
-			// 	.replace(/[^a-zA-Z0-9]+/g, '-')
-			// 	.replace(/^-+|-+$/g, '');
-
 			// Prepare form data
 			const finalFormData = {
 				...formData,
 				userId: currentUser._id,
 				sections: processedSections
-				// slug
 			};
-			console.log("Final FormData:", finalFormData); // Log final form data
 			// Send data to API using fetch
 			const res = await fetch('/api/post/create', {
 				method: 'POST',
@@ -174,20 +162,31 @@ export default function CreatePost() {
 			const data = await res.json();
 
 			if (!res.ok) {
-				throw new Error(data.message || 'Failed to create post');
+				setPublishError(data.message);
+				return;
 			}
 
-			setIsSubmitting(false);
-			setSubmitProgress(100);
-			setPublishError(null);
-			navigate(`/post/${data.slug}`);
+			if (res.ok) {
+				setPublishError(null);
+				navigate(`/post/${data.slug}`);
+			}
 		} catch (error) {
-			setIsSubmitting(false);
-			setSubmitProgress(0);
-			setPublishError(error.message || 'An error occurred while creating the post.');
+			setPublishError('Something went wrong');
+		} finally {
+			setIsSubmitting(false); // Reset submission state, re-enable button
 		}
 	};
 
+	useEffect(() => {
+		if (publishError) {
+			const timer = setTimeout(() => {
+				setPublishError(null); // Clear the error after 10 seconds
+			}, 20000);
+
+			// Cleanup function
+			return () => clearTimeout(timer);
+		}
+	}, [publishError]);
 
 	const toggleMenu = () => setIsMenuExpanded(!isMenuExpanded);
 
@@ -249,7 +248,6 @@ export default function CreatePost() {
 		setFormData(prevData => {
 			const updatedSections = [...prevData.sections];
 			updatedSections[index] = { ...updatedSections[index], ...content };
-			console.log("Section Updated:", updatedSections[index]);
 			return { ...prevData, sections: updatedSections };
 		});
 	};
@@ -483,14 +481,13 @@ export default function CreatePost() {
 								Publishing...
 							</>
 						) : (
-							'Create Post'
+							'Publish Post'
 						)}
 					</Button>
-					{publishError && (
-						<Alert className='mt-5' color='failure'>
-							{publishError}
-						</Alert>
-					)}
+					{publishError && <Alert className='mt-5' color='failure'>
+						{publishError}
+					</Alert>
+					}
 				</form>
 			</div>
 			<input
