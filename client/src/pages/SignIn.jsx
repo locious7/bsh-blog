@@ -63,7 +63,7 @@ export default function SignIn() {
               className="whitespace-nowrap font-bold dark:text-white text-4xl"
             >
               <span className="px-3 py-2 bg-gradient-to-r from-green-500 to-yellow-400 rounded-lg text-white text-base sm:text-base md:text-lg lg:text-2xl xl:text-2xl">
-                Beestings and Honey Blog
+                Beestings and Honey
               </span>
             </Link>
           </div>

@@ -13,8 +13,8 @@ export default function FooterComp() {
                             to="/"
                             className="self-center whitespace-nowrap text-2xl sm:text-xl font-semibold dark:text-white"
                         >
-                            <span className="px-2 py-1 bg-gradient-to-r from-orange-400 to-yellow-300 rounded-lg text-white">
-                                Beestings and Honey Blog
+                            <span className="px-2 py-1 bg-gradient-to-r from-orange-400 to-yellow-400 rounded-lg text-white">
+                                Beestings and Honey
                             </span>
                             <img
                                 src={logo}
@@ -35,7 +35,7 @@ export default function FooterComp() {
                                 <Footer.Link
                                     href="/about"
                                 >
-                                    About BSH Blog
+                                    About BSH
                                 </Footer.Link>
                             </Footer.LinkGroup>
                         </div>
@@ -77,7 +77,7 @@ export default function FooterComp() {
                 </div>
                 <Footer.Divider className="mt-8" />
                 <div className="w-full sm:flex sm:items-center sm:justify-between">
-                    <Footer.Copyright href='#' by="Beestings and Honey Blog" year={new Date().getFullYear()} />
+                    <Footer.Copyright href='#' by="Beestings and Honey" year={new Date().getFullYear()} />
                     <div className="flex gap-6 sm:mt-0 mt-4 sm:justify-center">
                         <Footer.Icon href="#" target="_blank" rel="noopener noreferrrr" icon={BsFacebook} />
                         <Footer.Icon href="#" target="_blank" rel="noopener noreferrrr" icon={BsInstagram} />

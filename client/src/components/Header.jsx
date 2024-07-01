@@ -73,8 +73,8 @@ export default function Header() {
           alt="logo"
           className="w-8 sm:w-8 md:w-8 lg:w-8 xl:w-128"
         />
-        <span className="px-2 py-1 bg-gradient-to-r from-orange-400 to-yellow-300 rounded-lg text-white">
-          Beestings and Honey Blog
+        <span className="px-2 py-1 bg-gradient-to-r from-orange-400 to-yellow-400 rounded-lg text-white">
+          Beestings and Honey
         </span>
       </Link>
       <form className="flex-grow hidden lg:flex lg:items-center lg:justify-center">
